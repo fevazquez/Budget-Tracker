@@ -6,6 +6,17 @@ import csv
 import gspread
 import time
 
+category = ["Car","Social","Shopping","Subscriptions","Food","Personal","Drinks","Invest,Savings"]
+
+usage = '''
+Budget tracker uploader
+
+Usage: 
+    python automater.py MONTH YEAR
+
+Must have A directory named MONTH YEAR with the bank statement inside the directory. 
+'''
+
 def get_date():
   if len(sys.argv) < 3:
     return None, None
@@ -15,11 +26,12 @@ def get_date():
 def get_files(month, year):
   if not os.path.isdir(f'./{month} {year}'):
     print(f'Directory {month} {year} not found.')
+    print(usage)
     sys.exit()
 
   return os.listdir(f'./{month} {year}')
 
-def read_data(files, month, year):
+def get_transactions(files, month, year):
   data = []
   for file in files:
     path = f'./{month} {year}/{file}'
@@ -34,18 +46,31 @@ def read_data(files, month, year):
     
   return data
 
-def cleanse_data(data):
-  pass
+def get_category(transaction_name):
+  
+
+def format_data(transactions):
+
+  formatted_entries = []
+  for entry in transactions:
+    entry = ''.join(i for i in entry).split('  ')
+    entry = [i for i in entry if i]
+
+    date, transaction_name, amount = entry[0], entry[1], float(entry[2])
+    if amount < 0:
+      formatted_entries.append([date, transaction_name, str(abs(amount))])
+    
+  return formatted_entries 
 
 
 def main():
   month,year = get_date()
-
   files = get_files(month, year)
-
-  transactions = read_data(files, month, year)
-  for row in transactions:
-    print(row)
+  transactions = get_transactions(files, month, year)
+  
+  formatted_transactions = format_data(transactions)
+  for i in formatted_transactions:
+    print(i)
 
   # sa = gspread.service_account()
   # sh = sa.open("Budget Tracking")
