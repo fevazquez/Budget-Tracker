@@ -3,7 +3,7 @@
   <p>Script that uploads each bank transaction to a budget tracker on Google Sheets.</p>
 </div>
 
-## Prerequisites
+## :construction: Prerequisites
 
 Have a Google Sheets budget tracker organized by month year
 
@@ -18,7 +18,7 @@ Install the gspread python library by running:
 
 User then needs to configure Google sheets API in GCP.
 
-### Create Service Account for our script
+### :robot: Create Service Account for our script
 
 1. Go to “APIs & Services > Credentials” and choose “Create credentials > Service account key”.
 
@@ -36,13 +36,13 @@ User then needs to configure Google sheets API in GCP.
 
 8. Move the downloaded file to ~/.config/gspread/service_account.json.
 
-## Running:
+## :running_man: Running:
 
 ```
 python MONTH YEAR
 ```
 
-## Acknowledgments
+## :handshake: Acknowledgments
 
 1. <a href="https://www.youtube.com/watch?v=IbdgcUqWSeo&ab_channel=InternetMadeCoder">Internet Made Coder</a>
 2. <a href="https://docs.gspread.org/en/latest/oauth2.html#enable-api-access-for-a-project">gspread docs</a>
