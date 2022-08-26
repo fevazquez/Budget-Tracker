@@ -5,8 +5,7 @@ import sys
 import csv
 import gspread
 import time
-
-category = ["Car","Social","Shopping","Subscriptions","Food","Personal","Drinks","Invest,Savings"]
+from datetime import datetime
 
 usage = '''
 Budget tracker uploader
@@ -46,8 +45,38 @@ def get_transactions(files, month, year):
     
   return data
 
-def get_category(transaction_name):
+def get_final_name_and_category(transaction):
+  category, name = '',''
+
+  if 'COINBASE' in transaction:
+    category = 'Investing'
+    name = 'Coinbase - BTC/ETH'
+
+  elif 'AMERICANEXPRESS' in transaction:
+    category = 'Savings'
+    name = 'AMEX transfer'
+
+  elif 'DES:AAA' in transaction or 'PENTAGON' in transaction:
+    category = 'Car'
+    name = 'Car payment' if 'PENTAGON' in transaction else 'AAA Insurance'
   
+  elif 'CHASE' in transaction or 'Credit Card' in transaction:
+    category = 'Shopping'
+    name = 'CHASE' if 'CHASE' in transaction else 'BOFA'
+    name += ' Credit card payment'
+
+  elif 'ADOBE' in transaction or 'SPOTIFY' in transaction:
+    category = 'Subscriptions'
+    name = 'Spotify' if 'SPOTIFY' in transaction else 'ADOBE'
+    name = 'Gym' if 'GYM' in transaction else name
+    name += ' payment'
+
+  else:
+    category = 'Personal'
+    name = transaction
+
+  return name, category
+
 
 def format_data(transactions):
 
@@ -56,28 +85,45 @@ def format_data(transactions):
     entry = ''.join(i for i in entry).split('  ')
     entry = [i for i in entry if i]
 
-    date, transaction_name, amount = entry[0], entry[1], float(entry[2])
+    date, transaction, amount = entry[0], entry[1], float(entry[2])
     if amount < 0:
-      formatted_entries.append([date, transaction_name, str(abs(amount))])
+      name, category = get_final_name_and_category(transaction)
+      formatted_entries.append([name, category, date, '', abs(amount)])
+
+  sorted(formatted_entries, key=lambda x: x[3])
     
   return formatted_entries 
 
 
+def upload_transactions(transactions, month=None, year=None):
+  if not month or not year:
+    print(f'Please provide month and year.')
+    sys.exit()
+    
+  sa = gspread.service_account()
+  sh = sa.open("Budget Tracking")
+
+  wks = sh.worksheet(f'{month} {year}')
+  start = 7
+  for idx, transaction in enumerate(transactions):
+    wks.insert_row(transaction, start+idx)
+  
+
 def main():
   month,year = get_date()
   files = get_files(month, year)
+
+  print(f'\nFetching transations from {month} {year}')
   transactions = get_transactions(files, month, year)
-  
+  print(f'Success. Found {len(transactions)}\n\n')
+
+  print('Preparing each entry for upload... \n')
   formatted_transactions = format_data(transactions)
-  for i in formatted_transactions:
-    print(i)
 
-  # sa = gspread.service_account()
-  # sh = sa.open("Budget Tracking")
-
-  # wks = sh.worksheet(f'{month} {year}')
-  # wks.insert_row(['test','Car','8/8'], 10)
-
+  print('Uploading transactions to budget tracker.... \n\n')
+  upload_transactions(formatted_transactions, month, year)
+  print('Success!')
+  
 
 if __name__ == '__main__':
   main()
