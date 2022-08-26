@@ -16,6 +16,8 @@ Usage:
 Must have A directory named MONTH YEAR with the bank statement inside the directory. 
 '''
 
+SHEETS_NAME = 'Budget Tracking'
+
 def get_date():
   if len(sys.argv) < 3:
     return None, None
@@ -101,7 +103,7 @@ def upload_transactions(transactions, month=None, year=None):
     sys.exit()
     
   sa = gspread.service_account()
-  sh = sa.open("Budget Tracking")
+  sh = sa.open(SHEETS_NAME)
 
   wks = sh.worksheet(f'{month} {year}')
   start = 7
