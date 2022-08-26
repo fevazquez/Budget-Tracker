@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Budget-Tracker Automater</h1>
+  <h1>Budget-Tracker Automater v1</h1>
   <p>Script that uploads each bank transaction to a budget tracker on Google Sheets.</p>
 </div>
 
